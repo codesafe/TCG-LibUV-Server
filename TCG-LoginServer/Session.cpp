@@ -97,6 +97,8 @@ Session::Session()
 	postPacketsize = 0;
 	memset(postRecvBuf, 0, RECV_BUF_SIZE);
 
+	packetSerial = 0;
+
 	//m_bConnected = FALSE;
 	//m_u64ConnData = 0;
 	//connID = 0;
@@ -241,7 +243,7 @@ UINT64	Session::getSessionID()
 }
 
 
-BOOL Session::setDataHandler(IDataHandler* handler)
+BOOL Session::setDataHandler(IPacketHandler* handler)
 {
 	//ERROR_RETURN_FALSE(pHandler != NULL);
 
@@ -277,8 +279,8 @@ BOOL Session::handleRecvPacket(INT32 readsize)
 				postDataLen += _readsize;
 
 				postPacketsize = 0;
-				// TODO.
-				//m_pDataHandler->OnDataHandle(m_pCurRecvBuffer, this);
+				// 패킷 처리 핸들러에게 전달
+				dataHandler->onDataHandle(m_pCurRecvBuffer, this);
 			}
 		}
 
@@ -343,6 +345,16 @@ BOOL Session::checkPacketHeader(CHAR *buff)
 */
 	PacketHeader *header = (PacketHeader *)buff;
 
+	// 클라이언트용이 아님?? 그럼 끝
+	if (header->signature != CLIENT_SIG)
+		return FALSE;
+
+	// 패킷 시리얼이 다르면 끝
+// 	if( header->packetserial > packetSerial)
+// 		return FALSE;
+
+	if (header->packetsize > PACKET_MAX_SIZE)
+		return FALSE;
 
 	return TRUE;
 }

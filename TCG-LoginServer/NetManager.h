@@ -17,7 +17,7 @@ public:
 	}
 
 public:
-	BOOL	start(UINT16 nPortNum, UINT32 nMaxConn, IDataHandler* pBufferHandler, std::string &strListenIp);
+	BOOL	start(UINT16 nPortNum, UINT32 nMaxConn, IPacketHandler* pBufferHandler, std::string &strListenIp);
 	BOOL	close();
 
 	BOOL	SendMessageByConnID(UINT32 dwConnID, UINT32 dwMsgID, UINT64 u64TargetID, UINT32 dwUserData, const char* pData, UINT32 dwLen);
@@ -41,7 +41,7 @@ public:
 	uv_thread_t						loopThreadID;
 
 public:
-	IDataHandler * bufferHandler;
+	IPacketHandler * bufferHandler;
 
 private:
 	static NetManager* _instance;

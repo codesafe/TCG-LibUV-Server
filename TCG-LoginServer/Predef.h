@@ -20,3 +20,8 @@
 
 
 #define MAX_BACKLOG		128		// listen backlog
+
+
+// packet message id
+#define MSG_NEW_CONNECTION		1
+#define MSG_CLOSE_CONNECTION	2

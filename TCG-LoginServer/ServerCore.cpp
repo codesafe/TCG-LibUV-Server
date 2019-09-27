@@ -2,6 +2,7 @@
 #include "NetManager.h"
 #include "Session.h"
 #include "Logger.h"
+#include "Packet.h"
 
 ServerCore*	ServerCore::_instance = nullptr;
 
@@ -51,6 +52,12 @@ BOOL ServerCore::stop()
 
 BOOL ServerCore::onDataHandle(IDataBuffer* pDataBuffer, Session* session)
 {
+	PacketHeader* header = (PacketHeader*)pDataBuffer->GetBuffer();
+
+	spinLock.Lock();
+	recvDataQueue->push_back(NetPacket(session->getSessionID(), pDataBuffer, header->msgID));
+	//recvDataQueue->emplace_back(NetPacket(session->getSessionID(), pDataBuffer, header->msgID));
+	spinLock.Unlock();
 	return TRUE;
 }
 
@@ -87,25 +94,25 @@ BOOL ServerCore::update()
 	std::swap(recvDataQueue, dispathQueue);
 	spinLock.Unlock();
 
-// 	for (std::deque<NetPacket>::iterator itor = dispathQueue->begin(); itor != dispathQueue->end(); itor++)
-// 	{
-// 		NetPacket& item = *itor;
-// 		if (item.m_dwMsgID == NEW_CONNECTION)
-// 		{
-// 			packetDispatcher->OnNewConnect((CConnection*)item.m_pDataBuffer);
-// 		}
-// 		else if (item.m_dwMsgID == CLOSE_CONNECTION)
-// 		{
-// 			packetDispatcher->OnCloseConnect((CConnection*)item.m_pDataBuffer);
-// 			//알림 보내기
-// 			CConnectionMgr::GetInstancePtr()->DeleteConnection((CConnection*)item.m_pDataBuffer);
-// 		}
-// 		else
-// 		{
-// 			m_pPacketDispatcher->DispatchPacket(&item);
-// 			item.m_pDataBuffer->Release();
-// 		}
-// 	}
+	for (std::deque<NetPacket>::iterator itor = dispathQueue->begin(); itor != dispathQueue->end(); itor++)
+	{
+		NetPacket& item = *itor;
+		if (item.msgID == MSG_NEW_CONNECTION)
+		{
+			packetDispatcher->OnNewConnect((Session*)item.dataBuffer);
+		}
+		else if (item.msgID == MSG_CLOSE_CONNECTION)
+		{
+			packetDispatcher->OnCloseConnect((Session*)item.dataBuffer);
+			//알림 보내기
+			//CConnectionMgr::GetInstancePtr()->DeleteConnection((CConnection*)item.m_pDataBuffer);
+		}
+		else
+		{
+			m_pPacketDispatcher->DispatchPacket(&item);
+			item.m_pDataBuffer->Release();
+		}
+	}
 
 	dispathQueue->clear();
 	Log::instance()->Flush();

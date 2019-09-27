@@ -35,8 +35,8 @@ struct NetPacket
 	IDataBuffer* dataBuffer;
 };
 
-
-struct IDataHandler
+// ¼ö½ÅµÈ packet hadle func callback
+struct IPacketHandler
 {
 	virtual BOOL onDataHandle(IDataBuffer* pDataBuffer, Session* session) = 0;
 	virtual BOOL onCloseConnect(Session* session) = 0;

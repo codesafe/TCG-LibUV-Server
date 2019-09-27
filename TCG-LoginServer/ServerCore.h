@@ -6,7 +6,7 @@
 
 class Session;
 
-class ServerCore : public IDataHandler
+class ServerCore : public IPacketHandler
 {
 
 public:

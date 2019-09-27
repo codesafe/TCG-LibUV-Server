@@ -75,7 +75,7 @@ NetManager::~NetManager()
 
 }
 
-BOOL NetManager::start(UINT16 port, UINT32 poolnum, IDataHandler* pBufferHandler, std::string &strListenIp)
+BOOL NetManager::start(UINT16 port, UINT32 poolnum, IPacketHandler* pBufferHandler, std::string &strListenIp)
 {
 	if (pBufferHandler == NULL)
 	{

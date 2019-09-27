@@ -11,8 +11,7 @@ GameService::~GameService()
 {
 }
 
-
-bool	GameService::init()
+bool GameService::init()
 {
 	//UTIL::SetCurrentWorkDir("");
 
@@ -23,12 +22,12 @@ bool	GameService::init()
 
 	int port = 9999;
 	int maxconnect = 100;
-	ServerCore::instance()->start(port, maxconnect, nullptr);
+	ServerCore::instance()->start(port, maxconnect, this);
 
 	return true;
 }
 
-bool	GameService::uninit()
+bool GameService::uninit()
 {
 	Log::instance()->LogInfo("Stop Game Service");
 	ServerCore::instance()->stop();
@@ -36,7 +35,7 @@ bool	GameService::uninit()
 	return true;
 }
 
-bool	GameService::runLoop()
+bool GameService::runLoop()
 {
 	while (1)
 	{
@@ -48,13 +47,25 @@ bool	GameService::runLoop()
 }
 
 // new connection이 왔을때 serverbase로 부터 뭔가 받고 싶으면 이것을 사용
-bool	GameService::onNewConnection()
+BOOL GameService::onNewConnect(Session* session)
 {
+
 	return true;
 }
 
 // close connection이 왔을때 serverbase로 부터 뭔가 받고 싶으면 이것을 사용
-bool	GameService::onCloseConnection()
+BOOL GameService::onCloseConnect(Session* session)
 {
 	return true;
+}
+
+BOOL GameService::dispatchPacket(NetPacket* pNetPacket)
+{
+	return TRUE;
+}
+
+BOOL GameService::onSecondTimer()
+{
+
+	return TRUE;
 }

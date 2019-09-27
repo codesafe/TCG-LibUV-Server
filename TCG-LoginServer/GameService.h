@@ -1,9 +1,13 @@
 #ifndef GAME_SERVICE
 #define GAME_SERVICE
 
+#include "IHandler.h"
+
+struct NetPacket;
+class Session;
 
 
-class GameService
+class GameService : public IPacketDispatcher
 {
 public :
 	GameService();
@@ -15,8 +19,10 @@ public :
 
 	bool	runLoop();
 
-	bool	onNewConnection();
-	bool	onCloseConnection();
+	BOOL	dispatchPacket(NetPacket* pNetPacket);
+	BOOL	onSecondTimer();
+	BOOL	onCloseConnect(Session* session);
+	BOOL	onNewConnect(Session* session);
 
 };
 
