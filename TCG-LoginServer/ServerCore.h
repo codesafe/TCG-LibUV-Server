@@ -5,8 +5,9 @@
 #include "IHandler.h"
 
 class Session;
+class DataBuff;
 
-class ServerCore : public IPacketHandler
+class ServerCore : public ICallbackHandler //public IPacketHandler
 {
 
 public:
@@ -17,19 +18,20 @@ public:
 		return _instance;
 	}
 
-	BOOL start(UINT16 nPortNum, UINT32 nMaxConn, IPacketDispatcher* pDispather, std::string strListenIp = "");
+	BOOL start(UINT16 port, UINT32 connectpool, ICallbackHandler* dispather, std::string ip = "");
 	BOOL stop();
 
-	BOOL onDataHandle(IDataBuffer* pDataBuffer, Session* session);
-	BOOL onCloseConnect(Session* session);
-	BOOL onNewConnect(Session* session);
+	BOOL onRecvData(DataBuff* dataBuffer, Session* session);
+	BOOL onCloseSession(Session* session);
+	BOOL onNewSession(Session* session);
+	BOOL dispatchPacket(NetPacket* packet);
 
-	Session* connectTo(std::string strIpAddr, UINT16 sPort);
+	Session* connectTo(std::string strIpAddr, UINT16 port);
 
-	//BOOL			sendMsgProtoBuf(UINT32 dwConnID, UINT32 dwMsgID, UINT64 u64TargetID, UINT32 dwUserData, const google::protobuf::Message& pdata);
-	//BOOL			SendMsgBuffer(UINT32 dwConnID, IDataBuffer* pDataBuffer);
+	BOOL	sendMsgProtoBuf(UINT64 sessid, UINT32 msgID, UINT64 targetID, UINT32 userData, const google::protobuf::Message& data);
+	BOOL	sendMsgBuffer(UINT64 sessid, DataBuff* dataBuffer);
 
-	Session* getConnectionByID(UINT32 dwConnID);
+	Session* getConnectionByID(UINT64 sessid);
 
 	BOOL update();
 
@@ -39,9 +41,9 @@ protected:
 
 protected:
 
-	static ServerCore * _instance;
+	static ServerCore* _instance;
 
-	IPacketDispatcher * packetDispatcher;
+	ICallbackHandler* packetDispatcher;
 
 	std::deque<NetPacket>*				recvDataQueue;
 	std::deque<NetPacket>*				dispathQueue;

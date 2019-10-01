@@ -19,7 +19,7 @@ BOOL Log::startLog(std::string strPrefix, std::string strLogDir)
 	if (!UTIL::CreateDir(strLogDir))
 		return FALSE;
 
-	strPrefix = strPrefix;
+	this->strPrefix = strPrefix;
 #ifdef WIN32
 	SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), ENABLE_EXTENDED_FLAGS);
 #endif

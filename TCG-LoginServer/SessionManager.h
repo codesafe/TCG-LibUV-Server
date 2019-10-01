@@ -16,7 +16,8 @@ public:
 		return _instance;
 	}
 
-	Session* createSession();
+	Session*	createSession();
+	BOOL		removeSession(Session *session);
 
 
 private:
@@ -25,9 +26,9 @@ private:
 
 	static SessionManager*	_instance;
 
+	UINT64					sessionSerial;
 
-	std::vector<Session*>	sessionlist;
-
+	std::map<UINT64, Session*>	sessionlist;
 };
 
 

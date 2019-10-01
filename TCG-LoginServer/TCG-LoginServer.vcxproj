@@ -57,12 +57,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
+      <AdditionalIncludeDirectories>../Dep/include/libuv;../Dep/include/protobuf;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>../Dep/lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libuv.lib;iphlpapi.lib;userenv.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libprotobufd.lib;libuv.lib;iphlpapi.lib;userenv.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -76,6 +78,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -83,30 +86,43 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>../Dep/lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libuv.lib;iphlpapi.lib;userenv.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libprotobufd.lib;libuv.lib;iphlpapi.lib;userenv.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DataBufferPool.cpp" />
     <ClCompile Include="GameService.cpp" />
     <ClCompile Include="Logger.cpp" />
+    <ClCompile Include="md5.cpp" />
     <ClCompile Include="NetManager.cpp" />
+    <ClCompile Include="PacketHandler.cpp" />
+    <ClCompile Include="pb\packet.pb.cc" />
+    <ClCompile Include="pb\packet_def.pb.cc" />
     <ClCompile Include="ServerCore.cpp" />
     <ClCompile Include="Session.cpp" />
     <ClCompile Include="SessionManager.cpp" />
+    <ClCompile Include="Sha256.cpp" />
     <ClCompile Include="TCG-LoginServer.cpp" />
     <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CommandDef.h" />
+    <ClInclude Include="DataBufferPool.h" />
     <ClInclude Include="GameService.h" />
     <ClInclude Include="IHandler.h" />
     <ClInclude Include="Logger.h" />
+    <ClInclude Include="md5.h" />
     <ClInclude Include="NetManager.h" />
     <ClInclude Include="Packet.h" />
+    <ClInclude Include="PacketHandler.h" />
+    <ClInclude Include="pb\packet.pb.h" />
+    <ClInclude Include="pb\packet_def.pb.h" />
     <ClInclude Include="Platform.h" />
     <ClInclude Include="Predef.h" />
     <ClInclude Include="ServerCore.h" />
     <ClInclude Include="Session.h" />
     <ClInclude Include="SessionManager.h" />
+    <ClInclude Include="Sha256.h" />
     <ClInclude Include="Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

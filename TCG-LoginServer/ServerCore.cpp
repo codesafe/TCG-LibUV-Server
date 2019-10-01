@@ -1,8 +1,11 @@
 #include "ServerCore.h"
 #include "NetManager.h"
 #include "Session.h"
+#include "SessionManager.h"
 #include "Logger.h"
 #include "Packet.h"
+#include "DataBufferPool.h"
+
 
 ServerCore*	ServerCore::_instance = nullptr;
 
@@ -18,23 +21,23 @@ ServerCore::~ServerCore()
 	delete dispathQueue;
 }
 
-BOOL ServerCore::start(UINT16 port, UINT32 maxconn, IPacketDispatcher* dispather, std::string strListenIp)
+BOOL ServerCore::start(UINT16 port, UINT32 connectpool, ICallbackHandler* dispather, std::string strListenIp)
 {
-// 	if (pDispather == NULL)
-// 	{
-// 		ASSERT_FAIELD;
-// 		return FALSE;
-// 	}
-
-	if ((port == 0) || (maxconn == 0))
+	if (dispather == nullptr)
 	{
-		assert(0);
+		ASSERT_FAIELD;
+		return FALSE;
+	}
+
+	if ((port == 0) || (connectpool == 0))
+	{
+		ASSERT_FAIELD;
 		return FALSE;
 	}
 
 	packetDispatcher = dispather;
 
-	if (!NetManager::instance()->start(port, maxconn, this, strListenIp))
+	if (!NetManager::instance()->start(port, connectpool, this, strListenIp))
 	{
 		Log::instance()->LogError("Error on Network init");
 		return FALSE;
@@ -50,38 +53,27 @@ BOOL ServerCore::stop()
 	return NetManager::instance()->close();
 }
 
-BOOL ServerCore::onDataHandle(IDataBuffer* pDataBuffer, Session* session)
-{
-	PacketHeader* header = (PacketHeader*)pDataBuffer->GetBuffer();
-
-	spinLock.Lock();
-	recvDataQueue->push_back(NetPacket(session->getSessionID(), pDataBuffer, header->msgID));
-	//recvDataQueue->emplace_back(NetPacket(session->getSessionID(), pDataBuffer, header->msgID));
-	spinLock.Unlock();
-	return TRUE;
-}
-
-BOOL ServerCore::onCloseConnect(Session* session)
-{
-	return TRUE;
-}
-
-BOOL ServerCore::onNewConnect(Session* session)
-{
-	return TRUE;
-}
 
 Session* ServerCore::connectTo(std::string strIpAddr, UINT16 sPort)
 {
 	return nullptr;
 }
 
-// BOOL ServerBase::sendMsgProtoBuf(UINT32 dwConnID, UINT32 dwMsgID, UINT64 u64TargetID, UINT32 dwUserData, const google::protobuf::Message& pdata)
-// {
-// 
-// }
+// 해당 세션에게 protbuf Packet 전송
+BOOL ServerCore::sendMsgProtoBuf(UINT64 sessid, UINT32 msgID, UINT64 targetID, UINT32 userData, const google::protobuf::Message& data)
+{
 
-Session* ServerCore::getConnectionByID(UINT32 dwConnID)
+	return TRUE;
+}
+
+// 해당 세션에게 buf Packet 전송
+BOOL	ServerCore::sendMsgBuffer(UINT64 sessid, DataBuff* dataBuffer)
+{
+	return TRUE;
+}
+
+
+Session* ServerCore::getConnectionByID(UINT64 sessid)
 {
 	return nullptr;
 }
@@ -99,18 +91,20 @@ BOOL ServerCore::update()
 		NetPacket& item = *itor;
 		if (item.msgID == MSG_NEW_CONNECTION)
 		{
-			packetDispatcher->OnNewConnect((Session*)item.dataBuffer);
+			packetDispatcher->onNewSession((Session*)item.dataBuffer);
 		}
 		else if (item.msgID == MSG_CLOSE_CONNECTION)
 		{
-			packetDispatcher->OnCloseConnect((Session*)item.dataBuffer);
-			//알림 보내기
-			//CConnectionMgr::GetInstancePtr()->DeleteConnection((CConnection*)item.m_pDataBuffer);
+			packetDispatcher->onCloseSession((Session*)item.dataBuffer);
+
+			// 세션 메니저에서 세션 삭제
+			SessionManager::instance()->removeSession((Session*)item.dataBuffer);
 		}
 		else
 		{
-			m_pPacketDispatcher->DispatchPacket(&item);
-			item.m_pDataBuffer->Release();
+			// 여기에서 처리하면될껄 dispatcher를 불러서 처리해야하는가??
+			packetDispatcher->dispatchPacket(&item);
+ 			item.dataBuffer->release();
 		}
 	}
 
@@ -118,4 +112,39 @@ BOOL ServerCore::update()
 	Log::instance()->Flush();
 
 	return TRUE;
+}
+
+BOOL ServerCore::onRecvData(DataBuff* dataBuffer, Session* session)
+{
+	PacketHeader* header = (PacketHeader*)dataBuffer->buffer;
+
+	spinLock.Lock();
+	recvDataQueue->push_back(NetPacket(session->getSessionID(), dataBuffer, header->msgID));
+	//recvDataQueue->emplace_back(NetPacket(session->getSessionID(), pDataBuffer, header->msgID));
+	spinLock.Unlock();
+	return TRUE;
+}
+
+BOOL ServerCore::onCloseSession(Session* session)
+{
+	spinLock.Lock();
+	recvDataQueue->emplace_back(NetPacket(session->getSessionID(), (DataBuff*)session, MSG_CLOSE_CONNECTION));
+	spinLock.Unlock();
+
+	return TRUE;
+}
+
+BOOL ServerCore::onNewSession(Session* session)
+{
+	spinLock.Lock();
+	recvDataQueue->emplace_back(NetPacket(session->getSessionID(), (DataBuff*)session, MSG_NEW_CONNECTION));
+	spinLock.Unlock();
+
+	return TRUE;
+}
+
+BOOL ServerCore::dispatchPacket(NetPacket* packet)
+{
+	ASSERT_FAIELD;
+	return FALSE;
 }

@@ -2,6 +2,8 @@
 #define UTIL
 
 #include "Predef.h"
+#include "Sha256.h"
+#include "md5.h"
 
 namespace UTIL
 {
@@ -87,6 +89,19 @@ namespace UTIL
 	}
 
 #endif
+
+	static std::string GetSessionKey(std::string seed)
+	{
+		std::string sha2 = sha256(seed);	// 64
+
+		tm ctime = UTIL::GetCurrTmTime();
+		char buff[64];
+		sprintf(buff, "%d-%d-%d-%d-%d-%d", ctime.tm_year, ctime.tm_mon, ctime.tm_mday, ctime.tm_hour, ctime.tm_min, ctime.tm_sec);
+		std::string md = md5(std::string(buff));	// 32
+
+		return sha2 + md;	// 64 + 32 = 96
+	}
+
 }
 
 #endif

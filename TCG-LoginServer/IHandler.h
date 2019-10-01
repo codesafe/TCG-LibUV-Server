@@ -3,8 +3,11 @@
 
 #include "Predef.h"
 
-class Session;
 
+class Session;
+class DataBuff;
+
+/*
 class IDataBuffer
 {
 public:
@@ -19,22 +22,25 @@ public:
 	virtual UINT32	GetBufferSize() = 0;
 	virtual UINT32  CopyFrom(IDataBuffer* pSrcBuffer) = 0;
 	virtual UINT32  CopyTo(CHAR* pDestBuf, UINT32 dwDestLen) = 0;
-};
+};
+*/
+
 
 struct NetPacket
 {
-	NetPacket(UINT32 _connID = 0, IDataBuffer* _buffer = NULL, UINT32 _msgID = 0)
+	NetPacket(UINT64 _sessid = 0, DataBuff* _buffer = NULL, UINT32 _msgid = 0)
 	{
-		connID = _connID;
+		sessionID = _sessid;
 		dataBuffer = _buffer;
-		msgID = _msgID;
+		msgID = _msgid;
 	}
 
-	UINT32       msgID;
-	UINT32       connID;
-	IDataBuffer* dataBuffer;
+	UINT32		msgID;
+	UINT64		sessionID;
+	DataBuff*	dataBuffer;
 };
 
+/*
 // ¼ö½ÅµÈ packet hadle func callback
 struct IPacketHandler
 {
@@ -46,11 +52,19 @@ struct IPacketHandler
 struct IPacketDispatcher
 {
 	virtual BOOL dispatchPacket(NetPacket* pNetPacket) = 0;
-	virtual BOOL onSecondTimer() = 0;
+//	virtual BOOL onSecondTimer() = 0;
 	virtual BOOL onCloseConnect(Session* session) = 0;
 	virtual BOOL onNewConnect(Session* session) = 0;
 };
+*/
 
+struct ICallbackHandler
+{
+	virtual BOOL dispatchPacket(NetPacket* packet) = 0;
+	virtual BOOL onRecvData(DataBuff* dataBuffer, Session* session) = 0;
+	virtual BOOL onCloseSession(Session* session) = 0;
+	virtual BOOL onNewSession(Session* session) = 0;
+};
 
 
 #endif

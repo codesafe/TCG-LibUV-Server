@@ -3,6 +3,7 @@
 #include "Logger.h"
 #include "IHandler.h"
 #include "Packet.h"
+#include "DataBufferPool.h"
 
 // libuv에게 packet을 Read할 buffer를 알려준다. 이곳이 call된 후에 자동으로 libuv에서는 packet을 buf에 채운다.
 void On_AllocBuff(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf)
@@ -88,7 +89,7 @@ void On_Close(uv_handle_t* handle)
 
 Session::Session()
 {
-	dataHandler = NULL;
+	handler = nullptr;
 	dataLen = 0;
 	memset(recvBuf, 0, RECV_BUF_SIZE);
 	buffReadPos = recvBuf;
@@ -128,8 +129,8 @@ BOOL Session::close()
 	dataLen = 0;
 
 	//m_IsSending = FALSE;
-	if (dataHandler != NULL)
-		dataHandler->onCloseConnect(this);
+	if (handler != nullptr)
+		handler->onCloseSession(this);
 
 	//m_bConnected = FALSE;
 
@@ -243,11 +244,11 @@ UINT64	Session::getSessionID()
 }
 
 
-BOOL Session::setDataHandler(IPacketHandler* handler)
+BOOL Session::setHandler(ICallbackHandler* handler)
 {
 	//ERROR_RETURN_FALSE(pHandler != NULL);
 
-	dataHandler = handler;
+	this->handler = handler;
 
 	return TRUE;
 }
@@ -278,9 +279,8 @@ BOOL Session::handleRecvPacket(INT32 readsize)
 				buffReadPos += _readsize;
 				postDataLen += _readsize;
 
-				postPacketsize = 0;
 				// 패킷 처리 핸들러에게 전달
-				dataHandler->onDataHandle(m_pCurRecvBuffer, this);
+				recvDataToHander();
 			}
 		}
 
@@ -311,8 +311,8 @@ BOOL Session::handleRecvPacket(INT32 readsize)
 			dataLen -= packetSize;
 			buffReadPos += packetSize;
 
-			// TODO. packet 처리
-			//m_pDataHandler->OnDataHandle(pDataBuffer, this);
+			// 패킷 처리 핸들러에게 전달
+			recvDataToHander();
 		}
 		else
 		{
@@ -327,6 +327,16 @@ BOOL Session::handleRecvPacket(INT32 readsize)
 	}
 
 	return TRUE;
+}
+
+// 패킷 처리 핸들러에게 전달
+VOID Session::recvDataToHander()
+{
+	DataBuff * databuff = DataBufferManager::instance()->allocBuffer(100);
+	databuff->copyData(postRecvBuf, postDataLen);
+	handler->onRecvData(databuff, this);
+	postPacketsize = 0;
+	postDataLen = 0;
 }
 
 // 패킷의 헤더를 검증

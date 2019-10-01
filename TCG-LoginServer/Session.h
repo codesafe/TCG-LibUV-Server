@@ -3,9 +3,7 @@
 
 #include "Predef.h"
 
-#define PACKET_MAX_SIZE		1024 * 2	// 하나의 패킷 최대 길이(이걸 넘으면 안됨)
-#define RECV_BUF_SIZE		4096 * 2
-struct IPacketHandler;
+struct ICallbackHandler;
 
 class Session
 {
@@ -22,13 +20,13 @@ public :
 
 	void		setSessionID(UINT64 id);
 	UINT64		getSessionID();
-	BOOL		setDataHandler(IPacketHandler* pHandler);
+	BOOL		setHandler(ICallbackHandler* handler);
 
 	BOOL		handleRecvPacket(INT32 readsize);
 	BOOL		checkPacketHeader(CHAR *buff);
 
 public :
-	IPacketHandler * dataHandler;
+	ICallbackHandler * handler;
 
 	uv_tcp_t		socket;
 	uv_connect_t	connectReq;
@@ -46,9 +44,11 @@ public :
 	UINT32	postDataLen;
 	CHAR	postRecvBuf[RECV_BUF_SIZE];
 
+private:
 	UINT32	packetSerial;
 	UINT64	sessionID;
 
+	VOID recvDataToHander();
 };
 
 

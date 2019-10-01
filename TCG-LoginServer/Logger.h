@@ -47,4 +47,19 @@ protected:
 	std::string         strPrefix;
 };
 
+#define ASSERT_FAIELD (assert(false))
+#undef ASSERT
+#define ASSERT(x)     (assert(x))
+
+#define LOG_ERROR  Log::instance()->LogError("Error : File:%s, Func: %s Line:%d", __FILE__ , __FUNCTION__, __LINE__);
+
+#define ERROR_RETURN_TRUE(P) \
+    if(P == FALSE)\
+    {\
+        Log::instance()->LogError("Error : File:%s, Func: %s Line:%d", __FILE__ , __FUNCTION__, __LINE__);\
+        ASSERT_FAIELD; \
+        return TRUE;	\
+    }
+
+
 #endif

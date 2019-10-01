@@ -2,12 +2,12 @@
 #define GAME_SERVICE
 
 #include "IHandler.h"
+#include "PacketHandler.h"
 
 struct NetPacket;
 class Session;
 
-
-class GameService : public IPacketDispatcher
+class GameService : public ICallbackHandler//public IPacketDispatcher
 {
 public :
 	GameService();
@@ -19,10 +19,14 @@ public :
 
 	bool	runLoop();
 
-	BOOL	dispatchPacket(NetPacket* pNetPacket);
+	BOOL	dispatchPacket(NetPacket* packet);
+	BOOL	onCloseSession(Session* session);
+	BOOL	onNewSession(Session* session);
+	BOOL	onRecvData(DataBuff* dataBuffer, Session* session);
+
 	BOOL	onSecondTimer();
-	BOOL	onCloseConnect(Session* session);
-	BOOL	onNewConnect(Session* session);
+private :
+	PacketHandler	packethandler;
 
 };
 

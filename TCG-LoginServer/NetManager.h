@@ -17,23 +17,19 @@ public:
 	}
 
 public:
-	BOOL	start(UINT16 nPortNum, UINT32 nMaxConn, IPacketHandler* pBufferHandler, std::string &strListenIp);
+	BOOL	start(UINT16 port, UINT32 connectpool, ICallbackHandler* handler, std::string &strListenIp);
 	BOOL	close();
 
-	BOOL	SendMessageByConnID(UINT32 dwConnID, UINT32 dwMsgID, UINT64 u64TargetID, UINT32 dwUserData, const char* pData, UINT32 dwLen);
-	BOOL    SendMsgBufByConnID(UINT32 dwConnID, IDataBuffer* pBuffer);
+	BOOL	SendMessageByConnID(UINT32 sessionid, UINT32 msgID, UINT64 u64TargetID, UINT32 userData, const char* data, UINT32 len);
+	BOOL    SendMsgBufByConnID(UINT32 sessionid, DataBuff* databuffer);
 
 public:
 	Session * ConnectTo_Sync(std::string strIpAddr, UINT16 sPort);
-
 	Session*	ConnectTo_Async(std::string strIpAddr, UINT16 sPort);
 
-	void HandleConnect(Session* pConnection, INT32 dwStatus);
-
-	void forwardNewConnect(Session* pConnection, INT32 dwStatus);
-
+	void onNewSession(Session* pConnection, INT32 dwStatus);
+	void handleAccept(Session* pConnection, INT32 dwStatus);
 	BOOL PostSendOperation(Session* pConnection);
-
 	void RunLoop();
 
 	uv_tcp_t						listenSocket;
@@ -41,7 +37,7 @@ public:
 	uv_thread_t						loopThreadID;
 
 public:
-	IPacketHandler * bufferHandler;
+	ICallbackHandler * handler;
 
 private:
 	static NetManager* _instance;

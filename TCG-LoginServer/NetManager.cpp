@@ -27,14 +27,14 @@ void On_Connection(uv_connect_t* req, int status)
 {
 	Session *session = (Session*)req->data;
 	if (status == 0)
-		NetManager::instance()->HandleConnect(session, status);
+		NetManager::instance()->onNewSession(session, status);
  	else
  		session->close();
 	return;
 }
 
 // Client 접속 발생
-void OnNewConnection(uv_stream_t* pServer, int status)
+void OnNewConnection(uv_stream_t* server, int status)
 {
 	if (status < 0)
 		return;
@@ -44,15 +44,15 @@ void OnNewConnection(uv_stream_t* pServer, int status)
 	if (session == nullptr)
 	{
 		Log::instance()->LogInfo("LibUV new session is NULL");
-		//ASSERT_FAIELD;
+		ASSERT_FAIELD;
 		return;
 	}
 
 	uv_tcp_init(NetManager::instance()->mainLoop, session->getSocket());
 
-	if (uv_accept(pServer, (uv_stream_t*)session->getSocket()) == 0)
+	if (uv_accept(server, (uv_stream_t*)session->getSocket()) == 0)
 	{
-		NetManager::instance()->forwardNewConnect(session, 0);
+		NetManager::instance()->handleAccept(session, 0);
 	}
 	else
 		session->close();
@@ -75,15 +75,15 @@ NetManager::~NetManager()
 
 }
 
-BOOL NetManager::start(UINT16 port, UINT32 poolnum, IPacketHandler* pBufferHandler, std::string &strListenIp)
+BOOL NetManager::start(UINT16 port, UINT32 poolnum, ICallbackHandler* handler, std::string &strListenIp)
 {
-	if (pBufferHandler == NULL)
+	if (handler == nullptr)
 	{
-		//ASSERT_FAIELD;
+		ASSERT_FAIELD;
 		return FALSE;
 	}
 
-	bufferHandler = pBufferHandler;
+	this->handler = handler;
 
 	//CConnectionMgr::GetInstancePtr()->InitConnectionList(poolnum);
 
@@ -118,12 +118,12 @@ BOOL NetManager::close()
 	return TRUE;
 }
 
-BOOL NetManager::SendMessageByConnID(UINT32 dwConnID, UINT32 dwMsgID, UINT64 u64TargetID, UINT32 dwUserData, const char* pData, UINT32 dwLen)
+BOOL NetManager::SendMessageByConnID(UINT32 sessionid, UINT32 msgID, UINT64 u64TargetID, UINT32 userData, const char* data, UINT32 len)
 {
 	return TRUE;
 }
 
-BOOL NetManager::SendMsgBufByConnID(UINT32 dwConnID, IDataBuffer* pBuffer)
+BOOL NetManager::SendMsgBufByConnID(UINT32 sessionid, DataBuff* buffer)
 {
 	return TRUE;
 }
@@ -138,19 +138,19 @@ Session* NetManager::ConnectTo_Async(std::string strIpAddr, UINT16 sPort)
 	return nullptr;
 }
 
-void NetManager::HandleConnect(Session* session, INT32 dwStatus)
+void NetManager::onNewSession(Session* session, INT32 dwStatus)
 {
-	//bufferHandler->OnNewConnect(session);
+	handler->onNewSession(session);
 	session->doReceive();
 }
 
 // 새로운 연결이 들어왔을때 다른 Layer로 전달
-void NetManager::forwardNewConnect(Session* session, INT32 status)
+void NetManager::handleAccept(Session* session, INT32 status)
 {
 	if (status == 0)
 	{
-		//m_pBufferHandler->forwardNewConnect(session);
-		session->setDataHandler(bufferHandler);
+		handler->onNewSession(session);
+		session->setHandler(handler);
 		session->doReceive();
 	}
 	else
@@ -163,7 +163,7 @@ BOOL NetManager::PostSendOperation(Session* session)
 {
 	if (session == nullptr)
 	{
-	//	ASSERT_FAIELD;
+		ASSERT_FAIELD;
 		return FALSE;
 	}
 
