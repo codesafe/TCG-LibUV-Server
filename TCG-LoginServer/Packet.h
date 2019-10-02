@@ -13,7 +13,7 @@ struct PacketHeader
 {
 	UINT8	signature;		// 서버가 보낸것?(SERVER_SIG) 클라이언트가 보낸것? (CLIENT_SIG)
 	UINT32	packetsize;		// packet size는 header + data 포함한 전체 길이
-	UINT32	packetserial;	//생성 번호 = wCommandID^dwSize+index(패키지당 자동 성장 색인); 환원 번호 = pHeader->dwPacketNo - pHeader->wCommandID^pHeader->dwSize;
+	UINT32	packetserial;	// 생성 번호 = wCommandID^dwSize+index(패키지당 자동 성장 색인); 환원 번호 = pHeader->dwPacketNo - pHeader->wCommandID^pHeader->dwSize;
 	UINT32	msgID;			// msg ID
 
 //	UINT32   dwMsgID;

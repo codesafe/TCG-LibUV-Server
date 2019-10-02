@@ -13,8 +13,8 @@
 #include <mutex>
 #include <thread>
 
-#include "Platform.h"
-#include "SpinLock.h"
+#include "./Common/Platform.h"
+#include "./Common/SpinLock.h"
 
 #include "uv.h"
 
@@ -34,6 +34,7 @@
 
 #define PACKET_MAX_SIZE		1024 * 2	// 하나의 패킷 최대 길이(이걸 넘으면 안됨)
 #define RECV_BUF_SIZE		4096 * 2
+#define SEND_BUF_SIZE		RECV_BUF_SIZE
 
 
 struct NetPacket;

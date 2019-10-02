@@ -1,8 +1,8 @@
 
 #include "Predef.h"
 #include "PacketHandler.h"
-#include "CommandDef.h"
-#include "ServerCore.h"
+#include "./Common/CommandDef.h"
+#include "./NetCore/ServerCore.h"
 
 
 PacketHandler::PacketHandler()
@@ -37,7 +37,7 @@ BOOL PacketHandler::onCreateAccountReq(NetPacket* packet)
 	*/
 	AckCreateAccount ack;
 	ack.set_result(RET_CREATE_SUCCESS);
-	return ServerCore::instance()->sendMsgProtoBuf(packet->sessionID, MSG_ACK_CREATE_ACCOUNT, 0, 0, ack);
+	return ServerCore::instance()->sendProtoBuf(packet->sessionID, MSG_ACK_CREATE_ACCOUNT, ack);
 }
 
 BOOL PacketHandler::onLoginReq(NetPacket* packet)
@@ -53,5 +53,5 @@ BOOL PacketHandler::onLoginReq(NetPacket* packet)
 	*/
 	AckLogin ack;
 	ack.set_result(RET_LOGIN_SUCCESS);
-	return ServerCore::instance()->sendMsgProtoBuf(packet->sessionID, MSG_ACK_LOGIN, 0, 0, ack);
+	return ServerCore::instance()->sendProtoBuf(packet->sessionID, MSG_ACK_LOGIN, ack);
 }

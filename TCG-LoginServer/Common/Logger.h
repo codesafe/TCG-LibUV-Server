@@ -1,7 +1,7 @@
 #ifndef LOG
 #define LOG
 
-#include "Predef.h"
+#include "../Predef.h"
 
 enum LogLevel
 {

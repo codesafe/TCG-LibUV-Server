@@ -2,31 +2,88 @@
 
 DataBuff::DataBuff()
 {
+#ifndef USE_STL
 	prev = nullptr;
 	next = nullptr;
+#endif
 }
 
 DataBuff::~DataBuff()
 {
-
 }
 
-VOID DataBuff::copyData(CHAR *data, INT32 size)
+VOID DataBuff::copyData(CHAR *data, INT32 offset, INT32 size)
 {
-	memcpy(buffer, data, size);
+	memcpy(buffer+offset, data, size);
 }
 
-VOID	DataBuff::release()
+VOID DataBuff::release()
 {
 	DataBufferManager::instance()->releaseBuffer(this);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
+#ifdef USE_STL
+
+DataBufferPool::DataBufferPool()
+{
+}
+
+DataBufferPool::~DataBufferPool()
+{
+}
+
+BOOL DataBufferPool::init(int poolnum)
+{
+	for (int i = 0; i < poolnum; i++)
+	{
+		DataBuff *buff = new DataBuff();
+		bufferpool.push_back(buff);
+	}
+
+	return TRUE;
+}
+
+// 버퍼 얻을때에는 head부터 얻는다
+DataBuff *DataBufferPool::allocBuffer()
+{
+	DataBuff *ret = nullptr;
+
+	bufferlock.lock();
+
+	if (bufferpool.empty() == false)
+	{
+		ret = bufferpool[0];
+		bufferpool.pop_front();
+	}
+	else
+	{
+		// 모자르다 더 만들어야 한다.
+		ret = new DataBuff();
+	}
+
+	bufferlock.unlock();
+
+	return ret;
+}
+
+// 해제시에는 head 앞에 추가
+BOOL DataBufferPool::releaseBuffer(DataBuff *buff)
+{
+	bufferlock.lock();
+	bufferpool.push_front(buff);
+	bufferlock.unlock();
+	return TRUE;
+}
+
+
+#else
+
 DataBufferPool::DataBufferPool()
 {
 	head = nullptr;
-	tail = nullptr;
+	//tail = nullptr;
 }
 
 DataBufferPool::~DataBufferPool()
@@ -51,10 +108,11 @@ BOOL DataBufferPool::init(int poolnum)
 
 		prevbuf = buff;
 	}
-	tail = prevbuf;
+	//tail = prevbuf;
 	return TRUE;
 }
 
+// 버퍼 얻을때에는 head부터 얻는다
 DataBuff *DataBufferPool::allocBuffer()
 {
 	DataBuff *ret = nullptr;
@@ -79,6 +137,7 @@ DataBuff *DataBufferPool::allocBuffer()
 	return ret;
 }
 
+// 해제시에는 head 앞에 추가
 BOOL DataBufferPool::releaseBuffer(DataBuff *buff)
 {
 	bufferlock.lock();
@@ -96,6 +155,7 @@ BOOL DataBufferPool::releaseBuffer(DataBuff *buff)
 	return TRUE;
 }
 
+#endif
 
 //////////////////////////////////////////////////////////////////////////
 

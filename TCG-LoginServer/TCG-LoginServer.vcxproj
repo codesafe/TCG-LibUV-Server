@@ -90,40 +90,44 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="DataBufferPool.cpp" />
+    <ClCompile Include="Common\Logger.cpp" />
+    <ClCompile Include="Common\md5.cpp" />
+    <ClCompile Include="Common\Sha256.cpp" />
+    <ClCompile Include="Common\Util.cpp" />
     <ClCompile Include="GameService.cpp" />
-    <ClCompile Include="Logger.cpp" />
-    <ClCompile Include="md5.cpp" />
-    <ClCompile Include="NetManager.cpp" />
+    <ClCompile Include="NetCore\DataBufferPool.cpp" />
+    <ClCompile Include="NetCore\NetManager.cpp" />
+    <ClCompile Include="NetCore\ServerCore.cpp" />
+    <ClCompile Include="NetCore\Session.cpp" />
+    <ClCompile Include="NetCore\SessionManager.cpp" />
     <ClCompile Include="PacketHandler.cpp" />
     <ClCompile Include="pb\packet.pb.cc" />
     <ClCompile Include="pb\packet_def.pb.cc" />
-    <ClCompile Include="ServerCore.cpp" />
-    <ClCompile Include="Session.cpp" />
-    <ClCompile Include="SessionManager.cpp" />
-    <ClCompile Include="Sha256.cpp" />
     <ClCompile Include="TCG-LoginServer.cpp" />
-    <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CommandDef.h" />
-    <ClInclude Include="DataBufferPool.h" />
+    <ClInclude Include="Common\atomic_ops.h" />
+    <ClInclude Include="Common\CommandDef.h" />
+    <ClInclude Include="Common\LockFreeQueue.h" />
+    <ClInclude Include="Common\LockFreeQueueImpl.h" />
+    <ClInclude Include="Common\Logger.h" />
+    <ClInclude Include="Common\md5.h" />
+    <ClInclude Include="Common\Platform.h" />
+    <ClInclude Include="Common\Sha256.h" />
+    <ClInclude Include="Common\SpinLock.h" />
+    <ClInclude Include="Common\Util.h" />
     <ClInclude Include="GameService.h" />
-    <ClInclude Include="IHandler.h" />
-    <ClInclude Include="Logger.h" />
-    <ClInclude Include="md5.h" />
-    <ClInclude Include="NetManager.h" />
+    <ClInclude Include="NetCore\DataBufferPool.h" />
+    <ClInclude Include="NetCore\IHandler.h" />
+    <ClInclude Include="NetCore\NetManager.h" />
+    <ClInclude Include="NetCore\ServerCore.h" />
+    <ClInclude Include="NetCore\Session.h" />
+    <ClInclude Include="NetCore\SessionManager.h" />
     <ClInclude Include="Packet.h" />
     <ClInclude Include="PacketHandler.h" />
     <ClInclude Include="pb\packet.pb.h" />
     <ClInclude Include="pb\packet_def.pb.h" />
-    <ClInclude Include="Platform.h" />
     <ClInclude Include="Predef.h" />
-    <ClInclude Include="ServerCore.h" />
-    <ClInclude Include="Session.h" />
-    <ClInclude Include="SessionManager.h" />
-    <ClInclude Include="Sha256.h" />
-    <ClInclude Include="Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

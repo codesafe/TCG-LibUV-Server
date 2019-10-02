@@ -1,7 +1,7 @@
 #ifndef GAME_SERVICE
 #define GAME_SERVICE
 
-#include "IHandler.h"
+#include "./NetCore/IHandler.h"
 #include "PacketHandler.h"
 
 struct NetPacket;

@@ -2,9 +2,10 @@
 #include "NetManager.h"
 #include "Session.h"
 #include "SessionManager.h"
-#include "Logger.h"
-#include "Packet.h"
 #include "DataBufferPool.h"
+#include "../Common/Logger.h"
+#include "../Packet.h"
+
 
 
 ServerCore*	ServerCore::_instance = nullptr;
@@ -60,18 +61,20 @@ Session* ServerCore::connectTo(std::string strIpAddr, UINT16 sPort)
 }
 
 // 해당 세션에게 protbuf Packet 전송
-BOOL ServerCore::sendMsgProtoBuf(UINT64 sessid, UINT32 msgID, UINT64 targetID, UINT32 userData, const google::protobuf::Message& data)
+BOOL ServerCore::sendProtoBuf(UINT64 sessid, UINT32 msgID, const google::protobuf::Message& data)
 {
+	UINT32 len = data.GetCachedSize();
+	CHAR buf[RECV_BUF_SIZE];
+	data.SerializePartialToArray(buf, len);
 
-	return TRUE;
+	return NetManager::instance()->sendProtoBufToSession(sessid, msgID, buf, len);
 }
 
 // 해당 세션에게 buf Packet 전송
 BOOL	ServerCore::sendMsgBuffer(UINT64 sessid, DataBuff* dataBuffer)
 {
-	return TRUE;
+	return NetManager::instance()->sendBufBySessionID(sessid, dataBuffer);
 }
-
 
 Session* ServerCore::getConnectionByID(UINT64 sessid)
 {
@@ -104,6 +107,7 @@ BOOL ServerCore::update()
 		{
 			// 여기에서 처리하면될껄 dispatcher를 불러서 처리해야하는가??
 			packetDispatcher->dispatchPacket(&item);
+			// 처리후 사용한 버퍼를 pool에 반납
  			item.dataBuffer->release();
 		}
 	}

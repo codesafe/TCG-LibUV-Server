@@ -1,9 +1,14 @@
 #ifndef SESSION_MANAGER
 #define SESSION_MANAGER
 
-#include "Predef.h"
+#include "../Predef.h"
 
 class Session;
+
+/*
+	TODO. session pool을 만들어 사용하는것도 생각해봐야 한다.
+	pool size에 서버의 최대 동접수를 사용한다.
+*/
 
 class SessionManager
 {
@@ -18,7 +23,7 @@ public:
 
 	Session*	createSession();
 	BOOL		removeSession(Session *session);
-
+	Session*	getSession(UINT64 sessionid);
 
 private:
 	SessionManager();
@@ -29,6 +34,7 @@ private:
 	UINT64					sessionSerial;
 
 	std::map<UINT64, Session*>	sessionlist;
+	std::mutex	lockobj;
 };
 
 

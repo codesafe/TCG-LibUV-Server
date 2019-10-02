@@ -1,7 +1,7 @@
 #ifndef SERVER_BASE
 #define SERVER_BASE
 
-#include "Predef.h"
+#include "../Predef.h"
 #include "IHandler.h"
 
 class Session;
@@ -28,7 +28,7 @@ public:
 
 	Session* connectTo(std::string strIpAddr, UINT16 port);
 
-	BOOL	sendMsgProtoBuf(UINT64 sessid, UINT32 msgID, UINT64 targetID, UINT32 userData, const google::protobuf::Message& data);
+	BOOL	sendProtoBuf(UINT64 sessid, UINT32 msgID, const google::protobuf::Message& data);
 	BOOL	sendMsgBuffer(UINT64 sessid, DataBuff* dataBuffer);
 
 	Session* getConnectionByID(UINT64 sessid);

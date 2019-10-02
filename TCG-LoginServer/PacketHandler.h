@@ -2,7 +2,7 @@
 #define PACKET_HANDLER
 
 #include "Predef.h"
-#include "IHandler.h"
+#include "./NetCore/IHandler.h"
 
 
 class PacketHandler

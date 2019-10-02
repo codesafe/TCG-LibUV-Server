@@ -1,7 +1,8 @@
 #include "GameService.h"
-#include "Util.h"
-#include "ServerCore.h"
-#include "Logger.h"
+#include "./Common/Util.h"
+#include "./Common/Logger.h"
+#include "./NetCore/ServerCore.h"
+
 
 GameService::GameService()
 {

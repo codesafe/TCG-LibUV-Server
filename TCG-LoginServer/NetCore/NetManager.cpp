@@ -1,8 +1,9 @@
 ﻿#include "NetManager.h"
-#include "Logger.h"
 #include "SessionManager.h"
 #include "Session.h"
-
+#include "DataBufferPool.h"
+#include "../Common/Logger.h"
+#include "../Packet.h"
 
 void _Run_Loop(void *arg) 
 {
@@ -118,13 +119,49 @@ BOOL NetManager::close()
 	return TRUE;
 }
 
-BOOL NetManager::SendMessageByConnID(UINT32 sessionid, UINT32 msgID, UINT64 u64TargetID, UINT32 userData, const char* data, UINT32 len)
+BOOL NetManager::sendProtoBufToSession(UINT64 sessionid, UINT32 msgID, CHAR* data, UINT32 len)
 {
-	return TRUE;
+	Session *session = SessionManager::instance()->getSession(sessionid);
+	if (session == nullptr)
+		return FALSE;
+
+	if (session->isConnected() == FALSE)
+	{
+		Log::instance()->LogError("sendBufBySessionID FAILED, disconnected !");
+		return FALSE;
+	}
+
+	DataBuff * buf = DataBufferManager::instance()->allocBuffer(0);
+	PacketHeader *header = (PacketHeader*)buf->buffer;
+
+	header->signature = SERVER_SIG;
+	header->msgID = msgID;
+	header->packetsize = len + sizeof(PacketHeader);	// protocol buf size + header size
+
+	buf->copyData(data, sizeof(PacketHeader), len);
+	if (session->sendBuffer(buf))
+	{
+		// TODO. Post send buffer
+
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
-BOOL NetManager::SendMsgBufByConnID(UINT32 sessionid, DataBuff* buffer)
+BOOL NetManager::sendBufBySessionID(UINT64 sessionid, DataBuff* buffer)
 {
+	Session *session = SessionManager::instance()->getSession(sessionid);
+	if (session == nullptr)
+		return FALSE;
+
+	if (session->isConnected() == FALSE)
+	{
+		Log::instance()->LogError("sendBufBySessionID FAILED, disconnected !");
+		return FALSE;
+	}
+
+
 	return TRUE;
 }
 

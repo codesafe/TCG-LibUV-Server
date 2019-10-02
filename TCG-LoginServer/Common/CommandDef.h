@@ -2,7 +2,7 @@
 #define MSG_DEFINE
 
 #include "Logger.h"
-#include "IHandler.h"
+#include "../NetCore/IHandler.h"
 
 #define BEGIN_PROCESS_MESSAGE(ClassName) \
 BOOL ClassName##::dispatchPacket(NetPacket *packet) \

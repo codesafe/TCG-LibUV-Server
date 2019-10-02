@@ -1,7 +1,7 @@
 #ifndef UTIL
 #define UTIL
 
-#include "Predef.h"
+#include "../Predef.h"
 #include "Sha256.h"
 #include "md5.h"
 

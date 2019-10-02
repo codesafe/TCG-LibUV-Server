@@ -1,7 +1,7 @@
 #ifndef NET_MANAGER
 #define NET_MANAGER
 
-#include "Predef.h"
+#include "../Predef.h"
 #include "IHandler.h"
 
 class Session;
@@ -20,8 +20,8 @@ public:
 	BOOL	start(UINT16 port, UINT32 connectpool, ICallbackHandler* handler, std::string &strListenIp);
 	BOOL	close();
 
-	BOOL	SendMessageByConnID(UINT32 sessionid, UINT32 msgID, UINT64 u64TargetID, UINT32 userData, const char* data, UINT32 len);
-	BOOL    SendMsgBufByConnID(UINT32 sessionid, DataBuff* databuffer);
+	BOOL	sendProtoBufToSession(UINT64 sessionid, UINT32 msgID, CHAR* data, UINT32 len);
+	BOOL    sendBufBySessionID(UINT64 sessionid, DataBuff* databuffer);
 
 public:
 	Session * ConnectTo_Sync(std::string strIpAddr, UINT16 sPort);
